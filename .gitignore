@@ -1,0 +1,11 @@
+app/
+assets/
+helpers/
+languages/
+libs/
+logs/
+system/
+uploads/
+config.php
+index.php
+.htaccess
