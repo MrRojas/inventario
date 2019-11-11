@@ -1,0 +1,384 @@
+/*
+MySQL Backup
+Source Server Version: 10.4.8
+Source Database: inventory2
+Date: 11/11/2019 17:27:16
+*/
+
+SET FOREIGN_KEY_CHECKS=0;
+
+-- ----------------------------
+--  Table structure for `almacen`
+-- ----------------------------
+DROP TABLE IF EXISTS `almacen`;
+CREATE TABLE `almacen` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id_articulo` int(11) NOT NULL,
+  `id_ubicacion_articulo` int(11) NOT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `cantidad` varchar(45) DEFAULT NULL,
+  `status` varchar(1) DEFAULT NULL,
+  `f_cre` datetime DEFAULT NULL,
+  `tipo_abastecimiento` varchar(1) DEFAULT 'M',
+  PRIMARY KEY (`id`),
+  KEY `fk_almacen_articulos1_idx` (`id_articulo`),
+  KEY `fk_almacen_ubicacion_articulos1_idx` (`id_ubicacion_articulo`),
+  KEY `fk_almacen_usuarios1_idx` (`id_usuario`),
+  CONSTRAINT `fk_almacen_articulos1` FOREIGN KEY (`id_articulo`) REFERENCES `articulos` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_almacen_ubicacion_articulos1` FOREIGN KEY (`id_ubicacion_articulo`) REFERENCES `ubicacion_articulos` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_almacen_usuarios1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+--  Table structure for `almacen_detalle`
+-- ----------------------------
+DROP TABLE IF EXISTS `almacen_detalle`;
+CREATE TABLE `almacen_detalle` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id_almacen` int(11) NOT NULL,
+  `serial` varchar(255) DEFAULT NULL,
+  `status` varchar(1) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_almacen_detalle_almacen1_idx` (`id_almacen`),
+  CONSTRAINT `fk_almacen_detalle_almacen1` FOREIGN KEY (`id_almacen`) REFERENCES `almacen` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+--  Table structure for `app_logs`
+-- ----------------------------
+DROP TABLE IF EXISTS `app_logs`;
+CREATE TABLE `app_logs` (
+  `log_id` int(11) NOT NULL AUTO_INCREMENT,
+  `Timestamp` varchar(255) DEFAULT NULL,
+  `Action` varchar(255) DEFAULT NULL,
+  `TableName` varchar(255) DEFAULT NULL,
+  `RecordID` varchar(255) DEFAULT NULL,
+  `SqlQuery` varchar(255) DEFAULT NULL,
+  `UserID` varchar(255) DEFAULT NULL,
+  `ServerIP` varchar(255) DEFAULT NULL,
+  `RequestUrl` text DEFAULT NULL,
+  `RequestData` text DEFAULT NULL,
+  `RequestCompleted` varchar(255) DEFAULT NULL,
+  `RequestMsg` text DEFAULT NULL,
+  PRIMARY KEY (`log_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=243 DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+--  Table structure for `articulos`
+-- ----------------------------
+DROP TABLE IF EXISTS `articulos`;
+CREATE TABLE `articulos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `codigo` varchar(255) DEFAULT NULL,
+  `descripcion` varchar(100) DEFAULT NULL,
+  `status` varchar(1) DEFAULT '1',
+  `id_tipo_articulo` int(11) NOT NULL,
+  `img` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `codigo_UNIQUE` (`codigo`),
+  KEY `fk_articulos_propositos_articulos1_idx` (`id_tipo_articulo`),
+  CONSTRAINT `fk_articulos_propositos_articulos1` FOREIGN KEY (`id_tipo_articulo`) REFERENCES `tipos_articulos` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+--  Table structure for `articulos_tipo_condicion`
+-- ----------------------------
+DROP TABLE IF EXISTS `articulos_tipo_condicion`;
+CREATE TABLE `articulos_tipo_condicion` (
+  `id_almacen` int(11) NOT NULL,
+  `id_condicion_articulo` int(11) NOT NULL,
+  `status` varchar(1) DEFAULT NULL,
+  `f_cre` datetime DEFAULT current_timestamp(),
+  `id_usuario` int(11) NOT NULL,
+  PRIMARY KEY (`id_almacen`),
+  KEY `fk_articulos_has_condicion_articulo_condicion_articulo1_idx` (`id_condicion_articulo`),
+  KEY `fk_articulos_tipo_condicion_usuarios1_idx` (`id_usuario`),
+  KEY `fk_articulos_tipo_condicion_almacen1_idx` (`id_almacen`),
+  CONSTRAINT `fk_articulos_has_condicion_articulo_condicion_articulo1` FOREIGN KEY (`id_condicion_articulo`) REFERENCES `tipo_condicion_articulo` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_articulos_tipo_condicion_almacen1` FOREIGN KEY (`id_almacen`) REFERENCES `almacen` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_articulos_tipo_condicion_usuarios1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+--  Table structure for `cargos`
+-- ----------------------------
+DROP TABLE IF EXISTS `cargos`;
+CREATE TABLE `cargos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `descripcion` varchar(100) DEFAULT NULL,
+  `status` varchar(1) DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+--  Table structure for `categoria`
+-- ----------------------------
+DROP TABLE IF EXISTS `categoria`;
+CREATE TABLE `categoria` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `descripcion` varchar(100) DEFAULT NULL,
+  `status` varchar(1) DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+--  Table structure for `departamentos`
+-- ----------------------------
+DROP TABLE IF EXISTS `departamentos`;
+CREATE TABLE `departamentos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `descripcion` varchar(100) DEFAULT NULL,
+  `status` varchar(1) DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+--  Table structure for `departamentos_cargos`
+-- ----------------------------
+DROP TABLE IF EXISTS `departamentos_cargos`;
+CREATE TABLE `departamentos_cargos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id_departamentos` int(11) NOT NULL,
+  `id_cargos` int(11) NOT NULL,
+  `status` varchar(1) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_departamentos_has_cargos_cargos1_idx` (`id_cargos`),
+  KEY `fk_departamentos_has_cargos_departamentos1_idx` (`id_departamentos`),
+  CONSTRAINT `fk_departamentos_has_cargos_cargos1` FOREIGN KEY (`id_cargos`) REFERENCES `cargos` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_departamentos_has_cargos_departamentos1` FOREIGN KEY (`id_departamentos`) REFERENCES `departamentos` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+--  Table structure for `detalle_articulo`
+-- ----------------------------
+DROP TABLE IF EXISTS `detalle_articulo`;
+CREATE TABLE `detalle_articulo` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id_articulo` int(11) NOT NULL,
+  `id_modelo` int(11) NOT NULL,
+  `id_sub_categoria` int(11) NOT NULL,
+  `id_medida` int(11) NOT NULL,
+  `status` varchar(1) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_detalle_articulo_articulos1_idx` (`id_articulo`),
+  KEY `fk_detalle_articulo_modelo1_idx` (`id_modelo`),
+  KEY `fk_detalle_articulo_sub_categoria1_idx` (`id_sub_categoria`),
+  KEY `fk_detalle_articulo_medida1_idx` (`id_medida`),
+  CONSTRAINT `fk_detalle_articulo_articulos1` FOREIGN KEY (`id_articulo`) REFERENCES `articulos` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_detalle_articulo_medida1` FOREIGN KEY (`id_medida`) REFERENCES `medida` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_detalle_articulo_modelo1` FOREIGN KEY (`id_modelo`) REFERENCES `modelo` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_detalle_articulo_sub_categoria1` FOREIGN KEY (`id_sub_categoria`) REFERENCES `sub_categoria` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+--  Table structure for `empleados`
+-- ----------------------------
+DROP TABLE IF EXISTS `empleados`;
+CREATE TABLE `empleados` (
+  `id` int(11) NOT NULL,
+  `nombre` varchar(45) DEFAULT NULL,
+  `s_nombre` varchar(100) DEFAULT NULL,
+  `apellido` varchar(45) DEFAULT NULL,
+  `s_apellido` varchar(100) DEFAULT NULL,
+  `img` varchar(100) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `sexo` varchar(1) DEFAULT NULL,
+  `nacionalidad` varchar(1) DEFAULT NULL,
+  `f_nacimiento` datetime DEFAULT NULL,
+  `telefono` varchar(12) DEFAULT NULL,
+  `ext` varchar(45) DEFAULT NULL,
+  `status` varchar(1) DEFAULT '1',
+  `id_departamento_cargo` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `nombre_UNIQUE` (`nombre`),
+  KEY `fk_empleados_departamentos_cargos1_idx` (`id_departamento_cargo`),
+  CONSTRAINT `fk_empleados_departamentos_cargos1` FOREIGN KEY (`id_departamento_cargo`) REFERENCES `departamentos_cargos` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+--  Table structure for `empleado_usuario`
+-- ----------------------------
+DROP TABLE IF EXISTS `empleado_usuario`;
+CREATE TABLE `empleado_usuario` (
+  `id_empleado` int(11) NOT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `status` varchar(1) DEFAULT NULL,
+  PRIMARY KEY (`id_empleado`,`id_usuario`),
+  KEY `fk_empleados_has_usuarios_usuarios1_idx` (`id_usuario`),
+  KEY `fk_empleados_has_usuarios_empleados1_idx` (`id_empleado`),
+  CONSTRAINT `fk_empleados_has_usuarios_empleados1` FOREIGN KEY (`id_empleado`) REFERENCES `empleados` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_empleados_has_usuarios_usuarios1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+--  Table structure for `marca`
+-- ----------------------------
+DROP TABLE IF EXISTS `marca`;
+CREATE TABLE `marca` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `descripcion` varchar(100) DEFAULT NULL,
+  `status` varchar(1) DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+--  Table structure for `medida`
+-- ----------------------------
+DROP TABLE IF EXISTS `medida`;
+CREATE TABLE `medida` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `descripcion` varchar(100) DEFAULT NULL,
+  `status` varchar(1) DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+--  Table structure for `modelo`
+-- ----------------------------
+DROP TABLE IF EXISTS `modelo`;
+CREATE TABLE `modelo` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id_marca` int(11) NOT NULL,
+  `descripcion` varchar(100) DEFAULT NULL,
+  `status` varchar(1) DEFAULT '1',
+  PRIMARY KEY (`id`),
+  KEY `fk_modelo1_marca1_idx` (`id_marca`),
+  CONSTRAINT `fk_modelo1_marca1` FOREIGN KEY (`id_marca`) REFERENCES `marca` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+--  Table structure for `movimientos_almacen`
+-- ----------------------------
+DROP TABLE IF EXISTS `movimientos_almacen`;
+CREATE TABLE `movimientos_almacen` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id_almacen` int(11) NOT NULL,
+  `id_tipo_movimiento` int(11) NOT NULL,
+  `cantidad` float DEFAULT NULL,
+  `id_solicitante` int(11) NOT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `status` varchar(1) DEFAULT '1',
+  `f_cre` varchar(1) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_movimientos_almacen_almacen1_idx` (`id_almacen`),
+  KEY `fk_movimientos_almacen_tipos_movimientos_almacen1_idx` (`id_tipo_movimiento`),
+  KEY `fk_movimientos_almacen_empleados1_idx` (`id_solicitante`),
+  KEY `fk_movimientos_almacen_usuarios1_idx` (`id_usuario`),
+  CONSTRAINT `fk_movimientos_almacen_almacen1` FOREIGN KEY (`id_almacen`) REFERENCES `almacen` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_movimientos_almacen_empleados1` FOREIGN KEY (`id_solicitante`) REFERENCES `empleados` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_movimientos_almacen_tipos_movimientos_almacen1` FOREIGN KEY (`id_tipo_movimiento`) REFERENCES `tipos_movimientos_almacen` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_movimientos_almacen_usuarios1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+--  Table structure for `sub_categoria`
+-- ----------------------------
+DROP TABLE IF EXISTS `sub_categoria`;
+CREATE TABLE `sub_categoria` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id_categoria` int(11) NOT NULL,
+  `descripcion` varchar(100) DEFAULT NULL,
+  `status` varchar(1) DEFAULT '1',
+  PRIMARY KEY (`id`),
+  KEY `fk_sub_categoria_categoria1_idx` (`id_categoria`),
+  CONSTRAINT `fk_sub_categoria_categoria1` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+--  Table structure for `tipos_articulos`
+-- ----------------------------
+DROP TABLE IF EXISTS `tipos_articulos`;
+CREATE TABLE `tipos_articulos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `descripcion` varchar(100) DEFAULT NULL,
+  `status` varchar(1) DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+--  Table structure for `tipos_movimientos_almacen`
+-- ----------------------------
+DROP TABLE IF EXISTS `tipos_movimientos_almacen`;
+CREATE TABLE `tipos_movimientos_almacen` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `descripcion` varchar(100) DEFAULT NULL,
+  `status` varchar(1) DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+--  Table structure for `tipo_condicion_articulo`
+-- ----------------------------
+DROP TABLE IF EXISTS `tipo_condicion_articulo`;
+CREATE TABLE `tipo_condicion_articulo` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `descripcion` varchar(100) DEFAULT NULL,
+  `status` varchar(1) DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+--  Table structure for `ubicaciones`
+-- ----------------------------
+DROP TABLE IF EXISTS `ubicaciones`;
+CREATE TABLE `ubicaciones` (
+  `id` int(11) NOT NULL,
+  `descripcion` varchar(100) DEFAULT NULL,
+  `status` varchar(1) DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+--  Table structure for `ubicacion_articulos`
+-- ----------------------------
+DROP TABLE IF EXISTS `ubicacion_articulos`;
+CREATE TABLE `ubicacion_articulos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id_ubicacion` int(11) NOT NULL,
+  `id_articulo` int(11) NOT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `f_cre` datetime DEFAULT current_timestamp(),
+  `status` varchar(1) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_ubicacion_has_articulos_articulos1_idx` (`id_articulo`),
+  KEY `fk_ubicacion_has_articulos_ubicacion1_idx` (`id_ubicacion`),
+  KEY `fk_ubicacion_articulos_usuarios1_idx` (`id_usuario`),
+  CONSTRAINT `fk_ubicacion_articulos_usuarios1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_ubicacion_has_articulos_articulos1` FOREIGN KEY (`id_articulo`) REFERENCES `articulos` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_ubicacion_has_articulos_ubicacion1` FOREIGN KEY (`id_ubicacion`) REFERENCES `ubicaciones` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+--  Table structure for `usuarios`
+-- ----------------------------
+DROP TABLE IF EXISTS `usuarios`;
+CREATE TABLE `usuarios` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(45) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `img` varchar(100) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `status` varchar(1) DEFAULT '1',
+  `rol` varchar(100) DEFAULT NULL,
+  `login_session_key` varchar(255) DEFAULT NULL,
+  `email_status` varchar(20) DEFAULT NULL,
+  `password_reset_key` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `nombre_UNIQUE` (`nombre`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+--  Records 
+-- ----------------------------
+INSERT INTO `app_logs` VALUES ('1','2019-10-09 07:26:47','userlogin','usuarios',NULL,'SELECT   * FROM usuarios WHERE  nombre = ?  LIMIT 1',NULL,'::1','index/login/','[]','false','Nombre de usuario o contraseña no correctos'), ('2','2019-10-09 07:26:55','userlogin','usuarios',NULL,'SELECT   * FROM usuarios WHERE  nombre = ?  LIMIT 1',NULL,'::1','index/login/','[]','false','Nombre de usuario o contraseña no correctos'), ('3','2019-10-09 07:29:48','userlogin','usuarios',NULL,'SELECT   * FROM usuarios WHERE  nombre = ?  LIMIT 1','1','::1','index/login/','[]','true',NULL), ('4','2019-10-09 07:33:15','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('5','2019-10-09 07:34:33','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('6','2019-10-09 07:34:44','userlogout',NULL,NULL,NULL,'1','::1','index/logout','[]','true',NULL), ('7','2019-10-09 07:35:23','userlogin','usuarios',NULL,'SELECT   * FROM usuarios WHERE  nombre = ?  LIMIT 1','1','::1','index/login/','[]','true',NULL), ('8','2019-10-09 07:35:25','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('9','2019-10-09 07:38:25','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('10','2019-10-09 07:38:29','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('11','2019-10-09 07:38:33','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('12','2019-10-09 07:38:36','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('13','2019-10-09 07:38:40','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('14','2019-10-09 07:40:58','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('15','2019-10-09 07:41:28','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('16','2019-10-09 07:42:12','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('17','2019-10-09 07:42:27','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('18','2019-10-09 07:43:18','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('19','2019-10-09 07:45:10','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('20','2019-10-09 07:48:45','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('21','2019-10-09 07:48:50','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('22','2019-10-09 07:49:12','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('23','2019-10-09 07:49:42','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('24','2019-10-09 07:51:58','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('25','2019-10-09 07:52:01','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('26','2019-10-09 07:53:17','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('27','2019-10-09 07:56:49','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('28','2019-10-09 07:58:45','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('29','2019-10-09 08:03:31','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('30','2019-10-09 08:04:25','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('31','2019-10-09 08:04:46','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('32','2019-10-09 08:04:47','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios','[]','true',NULL), ('33','2019-10-09 08:04:54','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('34','2019-10-09 08:05:05','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('35','2019-10-09 08:05:10','accountview','usuarios','1','SELECT   * FROM usuarios WHERE  id = ?  LIMIT 1','1','::1','account','[]','true',NULL), ('36','2019-10-09 08:05:15','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('37','2019-10-09 08:05:24','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('38','2019-10-09 08:07:14','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('39','2019-10-09 08:07:14','list','almacen','','SELECT SQL_CALC_FOUND_ROWS  id, id_articulo, id_ubicacion_articulo, id_usuario, cantidad, status, f_cre, tipo_abastecimiento FROM almacen WHERE  almacen.id_usuario = ?  ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','almacen/list','[]','true',NULL), ('40','2019-10-10 00:17:57','userlogin','usuarios',NULL,'SELECT   * FROM usuarios WHERE  nombre = ?  LIMIT 1','1','::1','index/login/','[]','true',NULL), ('41','2019-10-10 00:18:01','list','almacen','','SELECT SQL_CALC_FOUND_ROWS  id, id_articulo, id_ubicacion_articulo, id_usuario, cantidad, status, f_cre, tipo_abastecimiento FROM almacen WHERE  almacen.id_usuario = ?  ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','almacen','[]','true',NULL), ('42','2019-10-10 00:18:03','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('43','2019-10-10 00:18:03','list','almacen','','SELECT SQL_CALC_FOUND_ROWS  id, id_articulo, id_ubicacion_articulo, id_usuario, cantidad, status, f_cre, tipo_abastecimiento FROM almacen WHERE  almacen.id_usuario = ?  ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','almacen/list','[]','true',NULL), ('44','2019-10-10 00:21:43','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('45','2019-10-10 00:21:43','list','almacen','','SELECT SQL_CALC_FOUND_ROWS  id, id_articulo, id_ubicacion_articulo, id_usuario, cantidad, status, f_cre, tipo_abastecimiento FROM almacen WHERE  almacen.id_usuario = ?  ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','almacen/list','[]','true',NULL), ('46','2019-10-10 00:22:32','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('47','2019-10-10 00:22:32','list','almacen','','SELECT SQL_CALC_FOUND_ROWS  id, id_articulo, id_ubicacion_articulo, id_usuario, cantidad, status, f_cre, tipo_abastecimiento FROM almacen WHERE  almacen.id_usuario = ?  ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','almacen/list','[]','true',NULL), ('48','2019-10-10 00:23:21','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('49','2019-10-10 00:23:22','list','almacen','','SELECT SQL_CALC_FOUND_ROWS  id, id_articulo, id_ubicacion_articulo, id_usuario, cantidad, status, f_cre, tipo_abastecimiento FROM almacen WHERE  almacen.id_usuario = ?  ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','almacen/list','[]','true',NULL), ('50','2019-10-10 00:25:18','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('51','2019-10-10 00:25:19','list','almacen','','SELECT SQL_CALC_FOUND_ROWS  id, id_articulo, id_ubicacion_articulo, id_usuario, cantidad, status, f_cre, tipo_abastecimiento FROM almacen WHERE  almacen.id_usuario = ?  ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','almacen/list','[]','true',NULL), ('52','2019-10-10 00:25:30','list','almacen','','SELECT SQL_CALC_FOUND_ROWS  id, id_articulo, id_ubicacion_articulo, id_usuario, cantidad, status, f_cre, tipo_abastecimiento FROM almacen WHERE  almacen.id_usuario = ?  ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','almacen/list','[]','true',NULL), ('53','2019-10-10 01:25:19','list','almacen','','SELECT SQL_CALC_FOUND_ROWS  id, id_articulo, id_ubicacion_articulo, id_usuario, cantidad, status, f_cre, tipo_abastecimiento FROM almacen WHERE  almacen.id_usuario = ?  ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','almacen/list','[]','true',NULL), ('54','2019-10-10 04:26:53','userlogin','usuarios',NULL,'SELECT   * FROM usuarios WHERE  nombre = ?  LIMIT 1','1','::1','index/login/','[]','true',NULL), ('55','2019-10-10 04:30:07','list','almacen','','SELECT SQL_CALC_FOUND_ROWS  id, id_articulo, id_ubicacion_articulo, id_usuario, cantidad, status, f_cre, tipo_abastecimiento FROM almacen WHERE  almacen.id_usuario = ?  ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','almacen/list','[]','true',NULL), ('56','2019-10-10 04:30:31','add','usuarios','2','INSERT INTO usuarios (`nombre`, `password`, `img`, `rol`)  VALUES (?, ?, ?, ?)','1','::1','usuarios/add','{\"nombre\":\"nelsibeth\",\"password\":\"nelsibeth\",\"confirm_password\":\"nelsibeth\",\"img\":\"\",\"rol\":\"Analista\"}','true',NULL), ('57','2019-10-10 04:30:31','list','usuarios','2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios','[]','true',NULL), ('58','2019-10-10 04:30:31','list','almacen','','SELECT SQL_CALC_FOUND_ROWS  id, id_articulo, id_ubicacion_articulo, id_usuario, cantidad, status, f_cre, tipo_abastecimiento FROM almacen WHERE  almacen.id_usuario = ?  ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','almacen/list','[]','true',NULL), ('59','2019-10-10 04:30:35','userlogout',NULL,NULL,NULL,'1','::1','index/logout','[]','true',NULL), ('60','2019-10-10 04:30:46','userlogin','usuarios',NULL,'SELECT   * FROM usuarios WHERE  nombre = ?  LIMIT 1','2','::1','index/login/','[]','true',NULL), ('61','2019-10-10 04:36:47','userlogout',NULL,NULL,NULL,'2','::1','index/logout','[]','true',NULL), ('62','2019-10-10 04:36:52','userlogin','usuarios',NULL,'SELECT   * FROM usuarios WHERE  nombre = ?  LIMIT 1','1','::1','index/login/','[]','true',NULL), ('63','2019-10-10 04:37:00','accountview','usuarios','1','SELECT   * FROM usuarios WHERE  id = ?  LIMIT 1','1','::1','account','[]','true',NULL), ('64','2019-10-10 04:38:26','accountview','usuarios','1','SELECT   * FROM usuarios WHERE  id = ?  LIMIT 1','1','::1','account','[]','true',NULL), ('65','2019-10-10 04:39:37','accountview','usuarios','1','SELECT   * FROM usuarios WHERE  id = ?  LIMIT 1','1','::1','account','[]','true',NULL), ('66','2019-10-10 04:39:46','list','almacen','','SELECT SQL_CALC_FOUND_ROWS  id, id_articulo, id_ubicacion_articulo, id_usuario, cantidad, status, f_cre, tipo_abastecimiento FROM almacen WHERE  almacen.id_usuario = ?  ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','almacen','[]','true',NULL), ('67','2019-10-10 04:39:51','list','usuarios','2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('68','2019-10-10 04:40:45','list','usuarios','2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('69','2019-10-10 04:41:52','list','usuarios','2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('70','2019-10-10 04:41:57','list','usuarios','2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('71','2019-10-10 04:42:07','list','usuarios','2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('72','2019-10-10 04:43:47','accountview','usuarios','1','SELECT   * FROM usuarios WHERE  id = ?  LIMIT 1','1','::1','account','[]','true',NULL), ('73','2019-10-10 04:43:50','list','almacen','','SELECT SQL_CALC_FOUND_ROWS  id, id_articulo, id_ubicacion_articulo, id_usuario, cantidad, status, f_cre, tipo_abastecimiento FROM almacen WHERE  almacen.id_usuario = ?  ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','almacen','[]','true',NULL), ('74','2019-10-10 04:43:55','list','usuarios','2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('75','2019-10-10 04:45:23','list','usuarios','2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('76','2019-10-10 04:45:38','list','almacen','','SELECT SQL_CALC_FOUND_ROWS  id, id_articulo, id_ubicacion_articulo, id_usuario, cantidad, status, f_cre, tipo_abastecimiento FROM almacen WHERE  almacen.id_usuario = ?  ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','almacen','[]','true',NULL), ('77','2019-10-10 04:45:43','list','usuarios','2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('78','2019-10-10 04:45:54','list','usuarios','2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('79','2019-10-10 04:46:06','accountview','usuarios','1','SELECT   * FROM usuarios WHERE  id = ?  LIMIT 1','1','::1','account','[]','true',NULL), ('80','2019-10-10 04:46:08','list','almacen','','SELECT SQL_CALC_FOUND_ROWS  id, id_articulo, id_ubicacion_articulo, id_usuario, cantidad, status, f_cre, tipo_abastecimiento FROM almacen WHERE  almacen.id_usuario = ?  ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','almacen','[]','true',NULL), ('81','2019-10-10 04:46:56','list','almacen','','SELECT SQL_CALC_FOUND_ROWS  id, id_articulo, id_ubicacion_articulo, id_usuario, cantidad, status, f_cre, tipo_abastecimiento FROM almacen WHERE  almacen.id_usuario = ?  ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','almacen','[]','true',NULL), ('82','2019-10-10 04:47:07','list','usuarios','2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('83','2019-10-10 04:49:25','list','usuarios','2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('84','2019-10-10 04:52:00','list','usuarios','2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('85','2019-10-10 04:52:13','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios WHERE  id = ?  ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/List/id/1','[]','true',NULL), ('86','2019-10-10 04:52:19','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios WHERE  id = ?  ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/List/id/1','[]','true',NULL), ('87','2019-10-10 04:52:34','list','usuarios','1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios WHERE  id = ?  ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/List/id/1','[]','true',NULL), ('88','2019-10-10 04:57:57','view','usuarios','nombre','SELECT   id, nombre, email, status, rol FROM usuarios WHERE  nombre = ?  LIMIT 1','1','::1','usuarios/View/nombre/armando','[]','true',NULL), ('89','2019-10-10 04:58:01','view','usuarios','nombre','SELECT   id, nombre, email, status, rol FROM usuarios WHERE  nombre = ?  LIMIT 1','1','::1','usuarios/View/nombre/armando','[]','true',NULL), ('90','2019-10-10 04:58:25','view','usuarios','nombre','SELECT   id, nombre, email, status, rol FROM usuarios WHERE  nombre = ?  LIMIT 1','1','::1','usuarios/View/nombre/armando','[]','true',NULL), ('91','2019-10-10 04:58:40','view','usuarios','nombre','SELECT   id, nombre, email, status, rol FROM usuarios WHERE  nombre = ?  LIMIT 1','1','::1','usuarios/View/nombre/armando','[]','true',NULL), ('92','2019-10-10 04:59:41','view','usuarios','nombre','SELECT   id, nombre, img, email, status, rol FROM usuarios WHERE  nombre = ?  LIMIT 1','1','::1','usuarios/View/nombre/armando','[]','true',NULL), ('93','2019-10-10 05:03:52','userlogout',NULL,NULL,NULL,'1','::1','index/logout','[]','true',NULL), ('94','2019-10-10 05:05:39','userlogin','usuarios',NULL,'SELECT   * FROM usuarios WHERE  nombre = ?  LIMIT 1','1','::1','index/login/','[]','true',NULL), ('95','2019-10-10 05:13:24','list','usuarios','2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('96','2019-10-10 05:16:39','accountview','usuarios','1','SELECT   * FROM usuarios WHERE  id = ?  LIMIT 1','1','::1','account','[]','true',NULL), ('97','2019-10-10 05:16:50','accountview','usuarios','1','SELECT   * FROM usuarios WHERE  id = ?  LIMIT 1','1','::1','account','[]','true',NULL), ('98','2019-10-10 05:16:56','list','usuarios','2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('99','2019-10-10 05:18:22','list','usuarios','2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('100','2019-11-06 22:30:38','userlogin','usuarios',NULL,'SELECT   * FROM usuarios WHERE  nombre = ?  LIMIT 1','1','::1','index/login/','[]','true',NULL);
+INSERT INTO `app_logs` VALUES ('101','2019-11-07 00:25:29','accountview','usuarios','1','SELECT   * FROM usuarios WHERE  id = ?  LIMIT 1','1','::1','account','[]','true',NULL), ('102','2019-11-07 00:25:30','accountview','usuarios','1','SELECT   * FROM usuarios WHERE  id = ?  LIMIT 1','1','::1','account','[]','true',NULL), ('103','2019-11-07 00:25:31','accountview','usuarios','1','SELECT   * FROM usuarios WHERE  id = ?  LIMIT 1','1','::1','account','[]','true',NULL), ('104','2019-11-07 00:25:31','accountview','usuarios','1','SELECT   * FROM usuarios WHERE  id = ?  LIMIT 1','1','::1','account','[]','true',NULL), ('105','2019-11-07 00:25:32','accountview','usuarios','1','SELECT   * FROM usuarios WHERE  id = ?  LIMIT 1','1','::1','account','[]','true',NULL), ('106','2019-11-07 00:25:32','accountview','usuarios','1','SELECT   * FROM usuarios WHERE  id = ?  LIMIT 1','1','::1','account','[]','true',NULL), ('107','2019-11-07 00:25:32','accountview','usuarios','1','SELECT   * FROM usuarios WHERE  id = ?  LIMIT 1','1','::1','account','[]','true',NULL), ('108','2019-11-07 00:25:32','accountview','usuarios','1','SELECT   * FROM usuarios WHERE  id = ?  LIMIT 1','1','::1','account','[]','true',NULL), ('109','2019-11-07 00:27:28','list','usuarios','2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('110','2019-11-07 00:29:43','list','usuarios','2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('111','2019-11-07 00:29:51','list','usuarios','2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('112','2019-11-07 00:29:59','list','usuarios','2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('113','2019-11-07 00:30:23','list','usuarios','2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('114','2019-11-07 00:30:24','list','usuarios','2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('115','2019-11-07 00:30:27','list','cargos','','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM cargos ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','cargos/list','[]','true',NULL), ('116','2019-11-07 00:30:30','list','empleados','','SELECT SQL_CALC_FOUND_ROWS  id, nombre, s_nombre, apellido, s_apellido, img, email, sexo, nacionalidad, f_nacimiento, telefono, ext, status, id_departamento_cargo FROM empleados ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','empleados/list','[]','true',NULL), ('117','2019-11-07 00:30:37','list','empleados','','SELECT SQL_CALC_FOUND_ROWS  id, nombre, s_nombre, apellido, s_apellido, img, email, sexo, nacionalidad, f_nacimiento, telefono, ext, status, id_departamento_cargo FROM empleados ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','empleados/list','[]','true',NULL), ('118','2019-11-07 00:30:44','list','movimientos_almacen','','SELECT SQL_CALC_FOUND_ROWS  id, id_almacen, id_tipo_movimiento, cantidad, id_solicitante, id_usuario, status, f_cre FROM movimientos_almacen ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','movimientos_almacen/list','[]','true',NULL), ('119','2019-11-07 00:30:48','list','movimientos_almacen','','SELECT SQL_CALC_FOUND_ROWS  id, id_almacen, id_tipo_movimiento, cantidad, id_solicitante, id_usuario, status, f_cre FROM movimientos_almacen ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','movimientos_almacen/list','[]','true',NULL), ('120','2019-11-07 00:31:26','list','movimientos_almacen','','SELECT SQL_CALC_FOUND_ROWS  id, id_almacen, id_tipo_movimiento, cantidad, id_solicitante, id_usuario, status, f_cre FROM movimientos_almacen ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','movimientos_almacen/list','[]','true',NULL), ('121','2019-11-07 00:31:29','list','movimientos_almacen','','SELECT SQL_CALC_FOUND_ROWS  id, id_almacen, id_tipo_movimiento, cantidad, id_solicitante, id_usuario, status, f_cre FROM movimientos_almacen ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','movimientos_almacen/list','[]','true',NULL), ('122','2019-11-07 00:31:37','list','usuarios','2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('123','2019-11-07 00:32:01','list','marca','','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM marca ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','marca/list','[]','true',NULL), ('124','2019-11-07 00:32:07','add','marca','1','INSERT INTO marca (`descripcion`, `status`)  VALUES (?, ?)','1','::1','marca/add','{\"descripcion\":\"Nike\",\"status\":\"1\"}','true',NULL), ('125','2019-11-07 00:32:07','list','marca','1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM marca ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','marca','[]','true',NULL), ('126','2019-11-07 17:43:35','userlogin','usuarios',NULL,'SELECT   * FROM usuarios WHERE  nombre = ?  LIMIT 1','1','::1','index/login/','[]','true',NULL), ('127','2019-11-07 17:44:12','list','ubicaciones','','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM ubicaciones ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','ubicaciones/list','[]','true',NULL), ('128','2019-11-07 17:44:14','list','empleados','','SELECT SQL_CALC_FOUND_ROWS  id, nombre, s_nombre, apellido, s_apellido, img, email, sexo, nacionalidad, f_nacimiento, telefono, ext, status, id_departamento_cargo FROM empleados ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','empleados/list','[]','true',NULL), ('129','2019-11-07 17:44:17','list','usuarios','2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('130','2019-11-07 17:44:23','list','empleados','','SELECT SQL_CALC_FOUND_ROWS  id, nombre, s_nombre, apellido, s_apellido, img, email, sexo, nacionalidad, f_nacimiento, telefono, ext, status, id_departamento_cargo FROM empleados ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','empleados/list','[]','true',NULL), ('131','2019-11-07 18:00:16','list','empleados','','SELECT SQL_CALC_FOUND_ROWS  id, nombre, s_nombre, apellido, s_apellido, img, email, sexo, nacionalidad, f_nacimiento, telefono, ext, status, id_departamento_cargo FROM empleados ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','empleados/list','[]','true',NULL), ('132','2019-11-07 18:00:17','list','empleados','','SELECT SQL_CALC_FOUND_ROWS  id, nombre, s_nombre, apellido, s_apellido, img, email, sexo, nacionalidad, f_nacimiento, telefono, ext, status, id_departamento_cargo FROM empleados ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','empleados/list','[]','true',NULL), ('133','2019-11-07 18:00:18','list','empleados','','SELECT SQL_CALC_FOUND_ROWS  id, nombre, s_nombre, apellido, s_apellido, img, email, sexo, nacionalidad, f_nacimiento, telefono, ext, status, id_departamento_cargo FROM empleados ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','empleados/list','[]','true',NULL), ('134','2019-11-07 18:00:25','list','articulos','','SELECT SQL_CALC_FOUND_ROWS  id, codigo, descripcion, status, id_tipo_articulo, img FROM articulos ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','articulos/list','[]','true',NULL), ('135','2019-11-07 18:00:48','list','articulos','','SELECT SQL_CALC_FOUND_ROWS  id, codigo, descripcion, status, id_tipo_articulo, img FROM articulos ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','articulos/list','[]','true',NULL), ('136','2019-11-07 18:00:57','list','detalle_articulo','','SELECT SQL_CALC_FOUND_ROWS  id, id_articulo, id_modelo, id_sub_categoria, id_medida, status FROM detalle_articulo ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','detalle_articulo/list','[]','true',NULL), ('137','2019-11-07 18:02:00','list','usuarios','2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('138','2019-11-07 18:06:02','list','usuarios','2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('139','2019-11-07 18:07:58','add','usuarios','3','INSERT INTO usuarios (`nombre`, `password`, `img`, `rol`)  VALUES (?, ?, ?, ?)','1','::1','usuarios/add','{\"nombre\":\"analista1\",\"password\":\"analista1\",\"confirm_password\":\"analista1\",\"img\":\"uploads\\/files\\/6kftlhjom7ars3w.jpg\",\"rol\":\"Desarrollador\"}','true',NULL), ('140','2019-11-07 18:07:58','list','usuarios','3,2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios','[]','true',NULL), ('141','2019-11-07 18:08:07','view','usuarios','3','SELECT   id, nombre, img, email, status, rol FROM usuarios WHERE  id = ?  LIMIT 1','1','::1','usuarios/view/3','[]','true',NULL), ('142','2019-11-07 18:09:44','list','usuarios','3,2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios','[]','true',NULL), ('143','2019-11-07 18:09:55','edit','usuarios','3','UPDATE usuarios SET `nombre` = ?, `img` = ?, `status` = ?, `rol` = ? WHERE  id = ? ','1','::1','usuarios/edit/3/','{\"nombre\":\"analista1\",\"img\":\"uploads\\/files\\/6kftlhjom7ars3w.jpg\",\"status\":\"0\",\"rol\":\"Desarrollador\"}','true',NULL), ('144','2019-11-07 18:09:55','list','usuarios','3,2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios','[]','true',NULL), ('145','2019-11-07 18:10:04','edit','usuarios','3','UPDATE usuarios SET `nombre` = ?, `img` = ?, `status` = ?, `rol` = ? WHERE  id = ? ','1','::1','usuarios/edit/3/','{\"nombre\":\"analista1\",\"img\":\"uploads\\/files\\/6kftlhjom7ars3w.jpg\",\"status\":\"1\",\"rol\":\"Desarrollador\"}','true',NULL), ('146','2019-11-07 18:10:04','list','usuarios','3,2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios','[]','true',NULL), ('147','2019-11-07 18:10:08','list','empleados','','SELECT SQL_CALC_FOUND_ROWS  id, nombre, s_nombre, apellido, s_apellido, img, email, sexo, nacionalidad, f_nacimiento, telefono, ext, status, id_departamento_cargo FROM empleados ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','empleados/list','[]','true',NULL), ('148','2019-11-07 18:14:28','list','empleados','','SELECT SQL_CALC_FOUND_ROWS  id, nombre, s_nombre, apellido, s_apellido, img, email, sexo, nacionalidad, f_nacimiento, telefono, ext, status, id_departamento_cargo FROM empleados ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','empleados/list','[]','true',NULL), ('149','2019-11-07 18:21:59','list','empleados','','SELECT SQL_CALC_FOUND_ROWS  id, nombre, s_nombre, apellido, s_apellido, img, email, sexo, nacionalidad, f_nacimiento, telefono, ext, status, id_departamento_cargo FROM empleados ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','empleados/list','[]','true',NULL), ('150','2019-11-07 18:22:28','list','cargos','','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM cargos ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','cargos/list','[]','true',NULL), ('151','2019-11-07 18:23:14','list','cargos','','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM cargos ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','cargos/list','[]','true',NULL), ('152','2019-11-07 18:23:18','list','cargos','','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM cargos ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','cargos/list','[]','true',NULL), ('153','2019-11-07 18:23:34','list','cargos','','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM cargos ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','cargos/list','[]','true',NULL), ('154','2019-11-07 18:23:37','list','departamentos_cargos','','SELECT SQL_CALC_FOUND_ROWS  id, id_departamentos, id_cargos, status FROM departamentos_cargos ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','departamentos_cargos/list','[]','true',NULL), ('155','2019-11-07 18:24:37','list','departamentos','','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM departamentos ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','departamentos/list','[]','true',NULL), ('156','2019-11-07 18:27:25','list','departamentos','','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM departamentos ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','departamentos/list','[]','true',NULL), ('157','2019-11-07 18:27:27','list','departamentos','','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM departamentos ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','departamentos/list','[]','true',NULL), ('158','2019-11-07 18:27:50','list','departamentos','','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM departamentos ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','departamentos/list','[]','true',NULL), ('159','2019-11-07 18:31:04','list','departamentos','','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM departamentos ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','departamentos/list','[]','true',NULL), ('160','2019-11-07 18:31:07','list','departamentos','','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM departamentos ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','departamentos/list','[]','true',NULL), ('161','2019-11-07 18:31:34','list','departamentos','','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM departamentos ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','departamentos/list','[]','true',NULL), ('162','2019-11-07 18:31:52','add','departamentos','1','INSERT INTO departamentos (`descripcion`, `status`)  VALUES (?, ?)','1','::1','departamentos/add','{\"descripcion\":\"DEPARTAMENTO DE SISTEMAS\",\"status\":\"1\"}','true',NULL), ('163','2019-11-07 18:31:52','list','departamentos','1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM departamentos ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','departamentos','[]','true',NULL), ('164','2019-11-07 18:33:18','list','departamentos','1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM departamentos ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','departamentos','[]','true',NULL), ('165','2019-11-07 18:33:41','view','departamentos','1','SELECT   id, descripcion, status FROM departamentos WHERE  id = ?  LIMIT 1','1','::1','departamentos/view/1','[]','true',NULL), ('166','2019-11-07 18:35:37','list','departamentos','1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM departamentos ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','departamentos','[]','true',NULL), ('167','2019-11-07 18:35:58','list','marca','1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM marca ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','marca/list','[]','true',NULL), ('168','2019-11-07 18:36:05','list','ubicaciones','','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM ubicaciones ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','ubicaciones/list','[]','true',NULL), ('169','2019-11-07 18:36:09','list','departamentos','1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM departamentos ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','departamentos/list','[]','true',NULL), ('170','2019-11-07 18:38:02','list','departamentos','1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM departamentos ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','departamentos/list','[]','true',NULL), ('171','2019-11-07 21:22:01','list','movimientos_almacen','','SELECT SQL_CALC_FOUND_ROWS  id, id_almacen, id_tipo_movimiento, cantidad, id_solicitante, id_usuario, status, f_cre FROM movimientos_almacen ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','movimientos_almacen/list','[]','true',NULL), ('172','2019-11-07 21:22:03','list','movimientos_almacen','','SELECT SQL_CALC_FOUND_ROWS  id, id_almacen, id_tipo_movimiento, cantidad, id_solicitante, id_usuario, status, f_cre FROM movimientos_almacen ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','movimientos_almacen/list','[]','true',NULL), ('173','2019-11-07 22:56:43','list','movimientos_almacen','','SELECT SQL_CALC_FOUND_ROWS  id, id_almacen, id_tipo_movimiento, cantidad, id_solicitante, id_usuario, status, f_cre FROM movimientos_almacen ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','movimientos_almacen/list','[]','true',NULL), ('174','2019-11-11 18:20:29','userlogin','usuarios',NULL,'SELECT   * FROM usuarios WHERE  nombre = ?  LIMIT 1','1','::1','index/login/','[]','true',NULL), ('175','2019-11-11 18:21:15','list','usuarios','3,2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('176','2019-11-11 18:21:18','list','empleados','','SELECT SQL_CALC_FOUND_ROWS  id, nombre, s_nombre, apellido, s_apellido, img, email, sexo, nacionalidad, f_nacimiento, telefono, ext, status, id_departamento_cargo FROM empleados ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','empleados/list','[]','true',NULL), ('177','2019-11-11 18:21:22','list','ubicaciones','','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM ubicaciones ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','ubicaciones/list','[]','true',NULL), ('178','2019-11-11 18:22:34','list','ubicaciones','','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM ubicaciones ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','ubicaciones/list','[]','true',NULL), ('179','2019-11-11 18:23:02','list','departamentos','1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM departamentos ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','departamentos/list','[]','true',NULL), ('180','2019-11-11 18:23:07','list','tipos_movimientos_almacen','','SELECT SQL_CALC_FOUND_ROWS  id, id_tipo_articulo, descripcion, status FROM tipos_movimientos_almacen ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','tipos_movimientos_almacen/list','[]','true',NULL), ('181','2019-11-11 18:30:27','list','departamentos','1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM departamentos ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','departamentos/list','[]','true',NULL), ('182','2019-11-11 18:35:53','list','tipos_movimientos_almacen','5,4,3,2,1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM tipos_movimientos_almacen ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','tipos_movimientos_almacen/list','[]','true',NULL), ('183','2019-11-11 18:36:44','list','tipo_condicion_articulo','','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM tipo_condicion_articulo ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','tipo_condicion_articulo/list','[]','true',NULL), ('184','2019-11-11 18:39:41','list','tipo_condicion_articulo','','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM tipo_condicion_articulo ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','tipo_condicion_articulo/list','[]','true',NULL), ('185','2019-11-11 18:40:20','list','tipo_condicion_articulo','','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM tipo_condicion_articulo ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','tipo_condicion_articulo/list','[]','true',NULL), ('186','2019-11-11 18:40:27','add','tipo_condicion_articulo','1','INSERT INTO tipo_condicion_articulo (`descripcion`, `status`)  VALUES (?, ?)','1','::1','tipo_condicion_articulo/add','{\"descripcion\":\"Nuevo\",\"status\":\"1\"}','true',NULL), ('187','2019-11-11 18:40:27','list','tipo_condicion_articulo','1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM tipo_condicion_articulo ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','tipo_condicion_articulo','[]','true',NULL), ('188','2019-11-11 18:40:39','add','tipo_condicion_articulo','2','INSERT INTO tipo_condicion_articulo (`descripcion`, `status`)  VALUES (?, ?)','1','::1','tipo_condicion_articulo/add','{\"descripcion\":\"Defectuoso\",\"status\":\"1\"}','true',NULL), ('189','2019-11-11 18:40:39','list','tipo_condicion_articulo','2,1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM tipo_condicion_articulo ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','tipo_condicion_articulo','[]','true',NULL), ('190','2019-11-11 18:40:49','add','tipo_condicion_articulo','3','INSERT INTO tipo_condicion_articulo (`descripcion`, `status`)  VALUES (?, ?)','1','::1','tipo_condicion_articulo/add','{\"descripcion\":\"Reparado\",\"status\":\"1\"}','true',NULL), ('191','2019-11-11 18:40:49','list','tipo_condicion_articulo','3,2,1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM tipo_condicion_articulo ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','tipo_condicion_articulo','[]','true',NULL), ('192','2019-11-11 18:41:23','add','tipo_condicion_articulo','4','INSERT INTO tipo_condicion_articulo (`descripcion`, `status`)  VALUES (?, ?)','1','::1','tipo_condicion_articulo/add','{\"descripcion\":\"Buen Estado\",\"status\":\"1\"}','true',NULL), ('193','2019-11-11 18:41:23','list','tipo_condicion_articulo','4,3,2,1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM tipo_condicion_articulo ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','tipo_condicion_articulo','[]','true',NULL), ('194','2019-11-11 18:41:33','add','tipo_condicion_articulo','5','INSERT INTO tipo_condicion_articulo (`descripcion`, `status`)  VALUES (?, ?)','1','::1','tipo_condicion_articulo/add','{\"descripcion\":\"Regular Estado\",\"status\":\"1\"}','true',NULL), ('195','2019-11-11 18:41:34','list','tipo_condicion_articulo','5,4,3,2,1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM tipo_condicion_articulo ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','tipo_condicion_articulo','[]','true',NULL), ('196','2019-11-11 18:41:52','list','marca','1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM marca ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','marca/list','[]','true',NULL), ('197','2019-11-11 18:42:27','list','marca','1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM marca ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','marca/list','[]','true',NULL), ('198','2019-11-11 18:43:01','view','marca','1','SELECT   id, descripcion, status FROM marca WHERE  id = ?  LIMIT 1','1','::1','marca/view/1','[]','true',NULL), ('199','2019-11-11 18:43:50','list','marca','1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM marca ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','marca/list','[]','true',NULL), ('200','2019-11-11 18:47:16','list','marca','1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM marca ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','marca/list','[]','true',NULL);
+INSERT INTO `app_logs` VALUES ('201','2019-11-11 18:47:20','view','marca','1','SELECT   id, descripcion, status FROM marca WHERE  id = ?  LIMIT 1','1','::1','marca/view/1','[]','true',NULL), ('202','2019-11-11 18:47:25','list','marca','1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM marca ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','marca/list','[]','true',NULL), ('203','2019-11-11 18:48:32','list','marca','1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM marca ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','marca/list','[]','true',NULL), ('204','2019-11-11 18:49:14','list','marca','1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM marca ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','marca/list','[]','true',NULL), ('205','2019-11-11 18:49:17','list','marca','1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM marca ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','marca/list','[]','true',NULL), ('206','2019-11-11 18:49:26','list','marca','1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM marca ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','marca/list','[]','true',NULL), ('207','2019-11-11 18:50:33','list','marca','1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM marca ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','marca/list','[]','true',NULL), ('208','2019-11-11 18:52:12','list','marca','1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM marca ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','marca/list','[]','true',NULL), ('209','2019-11-11 18:52:17','list','marca','1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM marca ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','marca/list','[]','true',NULL), ('210','2019-11-11 18:53:06','list','marca','1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM marca ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','marca/list','[]','true',NULL), ('211','2019-11-11 18:53:16','list','medida','','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM medida ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','medida/list','[]','true',NULL), ('212','2019-11-11 18:54:04','list','medida','','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM medida ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','medida/list','[]','true',NULL), ('213','2019-11-11 18:54:10','add','medida','1','INSERT INTO medida (`descripcion`, `status`)  VALUES (?, ?)','1','::1','medida/add','{\"descripcion\":\"UND\",\"status\":\"1\"}','true',NULL), ('214','2019-11-11 18:54:11','list','medida','1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM medida ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','medida','[]','true',NULL), ('215','2019-11-11 18:54:16','add','medida','2','INSERT INTO medida (`descripcion`, `status`)  VALUES (?, ?)','1','::1','medida/add','{\"descripcion\":\"KG\",\"status\":\"1\"}','true',NULL), ('216','2019-11-11 18:54:17','list','medida','2,1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM medida ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','medida','[]','true',NULL), ('217','2019-11-11 18:54:25','add','medida','3','INSERT INTO medida (`descripcion`, `status`)  VALUES (?, ?)','1','::1','medida/add','{\"descripcion\":\"M\",\"status\":\"1\"}','true',NULL), ('218','2019-11-11 18:54:26','list','medida','3,2,1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM medida ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','medida','[]','true',NULL), ('219','2019-11-11 18:54:48','list','cargos','','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM cargos ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','cargos/list','[]','true',NULL), ('220','2019-11-11 18:55:46','list','cargos','','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM cargos ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','cargos/list','[]','true',NULL), ('221','2019-11-11 18:55:57','add','cargos','1','INSERT INTO cargos (`descripcion`, `status`)  VALUES (?, ?)','1','::1','cargos/add','{\"descripcion\":\"ANALISTA\",\"status\":\"1\"}','true',NULL), ('222','2019-11-11 18:55:57','list','cargos','1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM cargos ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','cargos','[]','true',NULL), ('223','2019-11-11 18:56:19','add','cargos','2','INSERT INTO cargos (`descripcion`, `status`)  VALUES (?, ?)','1','::1','cargos/add','{\"descripcion\":\"COORDINADOR DE DESARROLLO\",\"status\":\"1\"}','true',NULL), ('224','2019-11-11 18:56:19','list','cargos','2,1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM cargos ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','cargos','[]','true',NULL), ('225','2019-11-11 18:56:31','list','departamentos_cargos','','SELECT SQL_CALC_FOUND_ROWS  id, id_departamentos, id_cargos, status FROM departamentos_cargos ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','departamentos_cargos/list','[]','true',NULL), ('226','2019-11-11 19:03:13','list','departamentos_cargos','','SELECT SQL_CALC_FOUND_ROWS  departamentos_cargos.id, departamentos.descripcion, cargos.descripcion AS cargos_descripcion, departamentos_cargos.status FROM departamentos_cargos INNER JOIN departamentos ON departamentos_cargos.id_departamentos = departament','1','::1','departamentos_cargos/list','[]','true',NULL), ('227','2019-11-11 19:03:57','add','departamentos_cargos','1','INSERT INTO departamentos_cargos (`id_departamentos`, `id_cargos`)  VALUES (?, ?)','1','::1','departamentos_cargos/add','{\"id_departamentos\":\"1\",\"id_cargos\":\"1\"}','true',NULL), ('228','2019-11-11 19:03:58','list','departamentos_cargos','1','SELECT SQL_CALC_FOUND_ROWS  departamentos_cargos.id, departamentos.descripcion, cargos.descripcion AS cargos_descripcion, departamentos_cargos.status FROM departamentos_cargos INNER JOIN departamentos ON departamentos_cargos.id_departamentos = departament','1','::1','departamentos_cargos','[]','true',NULL), ('229','2019-11-11 19:04:34','list','departamentos_cargos','1','SELECT SQL_CALC_FOUND_ROWS  departamentos_cargos.id, departamentos.descripcion, cargos.descripcion AS cargos_descripcion, departamentos_cargos.status FROM departamentos_cargos INNER JOIN departamentos ON departamentos_cargos.id_departamentos = departament','1','::1','departamentos_cargos','[]','true',NULL), ('230','2019-11-11 19:05:51','list','departamentos_cargos','1','SELECT SQL_CALC_FOUND_ROWS  departamentos_cargos.id, departamentos.descripcion, cargos.descripcion AS cargos_descripcion, departamentos_cargos.status FROM departamentos_cargos INNER JOIN departamentos ON departamentos_cargos.id_departamentos = departament','1','::1','departamentos_cargos','[]','true',NULL), ('231','2019-11-11 19:06:59','list','departamentos_cargos','1','SELECT SQL_CALC_FOUND_ROWS  departamentos_cargos.id, departamentos.descripcion, cargos.descripcion AS cargos_descripcion, departamentos_cargos.status FROM departamentos_cargos INNER JOIN departamentos ON departamentos_cargos.id_departamentos = departament','1','::1','departamentos_cargos','[]','true',NULL), ('232','2019-11-11 19:07:06','edit','departamentos_cargos','1','UPDATE departamentos_cargos SET `id_departamentos` = ?, `id_cargos` = ?, `status` = ? WHERE  id = ? ','1','::1','departamentos_cargos/edit/1/','{\"id_departamentos\":\"1\",\"id_cargos\":\"1\",\"status\":\"1\"}','true',NULL), ('233','2019-11-11 19:07:06','list','departamentos_cargos','1','SELECT SQL_CALC_FOUND_ROWS  departamentos_cargos.id, departamentos.descripcion, cargos.descripcion AS cargos_descripcion, departamentos_cargos.status FROM departamentos_cargos INNER JOIN departamentos ON departamentos_cargos.id_departamentos = departament','1','::1','departamentos_cargos','[]','true',NULL), ('234','2019-11-11 19:07:14','view','departamentos_cargos','1','SELECT   departamentos_cargos.id, departamentos_cargos.id_departamentos, departamentos_cargos.id_cargos, departamentos_cargos.status, departamentos.id AS departamentos_id, departamentos.descripcion, departamentos.status AS departamentos_status, cargos.id ','1','::1','departamentos_cargos/view/1','[]','true',NULL), ('235','2019-11-11 19:07:23','list','ubicaciones','','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM ubicaciones ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','ubicaciones/list','[]','true',NULL), ('236','2019-11-11 19:07:26','list','usuarios','3,2,1','SELECT SQL_CALC_FOUND_ROWS  id, nombre, img, email, status, rol FROM usuarios ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','usuarios/list','[]','true',NULL), ('237','2019-11-11 19:07:29','list','modelo','','SELECT SQL_CALC_FOUND_ROWS  id, id_marca, descripcion, status FROM modelo ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','modelo/list','[]','true',NULL), ('238','2019-11-11 19:07:32','list','tipo_condicion_articulo','5,4,3,2,1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM tipo_condicion_articulo ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','tipo_condicion_articulo/list','[]','true',NULL), ('239','2019-11-11 19:07:36','list','tipo_condicion_articulo','5,4,3,2,1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM tipo_condicion_articulo ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','tipo_condicion_articulo/list','[]','true',NULL), ('240','2019-11-11 19:07:38','view','tipo_condicion_articulo','5','SELECT   id, descripcion, status FROM tipo_condicion_articulo WHERE  id = ?  LIMIT 1','1','::1','tipo_condicion_articulo/view/5','[]','true',NULL), ('241','2019-11-11 19:07:48','list','tipo_condicion_articulo','5,4,3,2,1','SELECT SQL_CALC_FOUND_ROWS  id, descripcion, status FROM tipo_condicion_articulo ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','tipo_condicion_articulo/list','[]','true',NULL), ('242','2019-11-11 19:07:49','list','modelo','','SELECT SQL_CALC_FOUND_ROWS  id, id_marca, descripcion, status FROM modelo ORDER BY id DESC  LIMIT 20 OFFSET 0','1','::1','modelo/list','[]','true',NULL);
+INSERT INTO `cargos` VALUES ('1','ANALISTA','1'), ('2','COORDINADOR DE DESARROLLO','1');
+INSERT INTO `departamentos` VALUES ('1','DEPARTAMENTO DE SISTEMAS','1');
+INSERT INTO `departamentos_cargos` VALUES ('1','1','1','1');
+INSERT INTO `marca` VALUES ('1','Nike','1');
+INSERT INTO `medida` VALUES ('1','UND','1'), ('2','KG','1'), ('3','M','1');
+INSERT INTO `tipos_articulos` VALUES ('1','Asignacion','1'), ('2','Prestamo','1'), ('3','Consumible','1');
+INSERT INTO `tipos_movimientos_almacen` VALUES ('1','Prestamo','1'), ('2','Asignacion','1'), ('3','Devolucion','1'), ('4','Desincorporacion','1'), ('5','Consumo','1');
+INSERT INTO `tipo_condicion_articulo` VALUES ('1','Nuevo','1'), ('2','Defectuoso','1'), ('3','Reparado','1'), ('4','Buen Estado','1'), ('5','Regular Estado','1');
+INSERT INTO `usuarios` VALUES ('1','armando','9eb6835cc95b053818b660bd9fc9f092a0b30cef89c1f0f17f469d5caa0ae617','',NULL,'1','Desarrollador',NULL,NULL,NULL), ('2','nelsibeth','7f58a2c6043f4252b25360f27e778fb854cdbeccf3c25062ecfbe1d01825f3ab','',NULL,'1','Analista',NULL,NULL,NULL), ('3','analista1','bf1436a4f3f3165b81fada391bd4b32746e2d8a6ba577022fcb97d78491dab29','uploads/files/6kftlhjom7ars3w.jpg',NULL,'1','Desarrollador',NULL,NULL,NULL);
